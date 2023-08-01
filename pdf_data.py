@@ -1,99 +1,83 @@
-from re import split
-from pdfminer.high_level import extract_text
-import re
-import os
-from decimal import Decimal
-
-DIR = "/Users/saitouyuuki/Desktop/src/2021-exempt/"
-exempt_d={}
-exempts_l=[]
-
-# Ticker Symb macher
-ticker_r = re.compile(r"[0-9]{3}-[a-zA-Z]*")
-# % macher for 「配当金等金額」「外国源泉徴収額」
-delimiter_r = re.compile(r"%")
-# date macher for 「配当金等金額(円)」「外国源泉徴収額(円)」
-delimiter_r2 = re.compile(r"[0-9]{4}/[0-9]{2}/[0-9]{2}")
-
-for filename in os.listdir(DIR):
-    if filename.endswith(".pdf"): 
-        dividend_b=False
-        dividend_Yen_b=False
-        gT_b=False
-        counter=0
-        #テキストの抽出
-        text = extract_text(os.path.join(DIR, filename))
-        lines=text.split('\n')
-        #print(text)
-        for line in lines:
-            # ticker
-            if re.match(ticker_r,line) != None:
-                print("-----------------------")
-                exempt_d['ティッカー']=re.match(ticker_r,line).group()
-                counter=0
-                dividend_b=True
-                dividend_Yen_b=False
-                gT_b=False
-                print(re.match(ticker_r,line).group())
-
-            # when gt shows up its time to get dividend and foriegn tax etc
-            if re.match(delimiter_r,line) != None and dividend_b:
-                #print(re.match(delimiter_r,line).group())
-                counter=0
-            if dividend_b:
-                counter = counter + 1
-            if line == 'gT' and dividend_b:
-                gT_b = True
-                counter = 0
-            if not gT_b:
-                if dividend_b and counter == 11 :
-                    print(line)
-                    exempt_d['配当金等金額']=line
-                if dividend_b and counter == 13 :
-                    print(line)
-                    exempt_d['外国源泉徴収額']=line
-            if gT_b:
-                if dividend_b and counter == 4 :
-                    print(line)
-                    exempt_d['配当金等金額']=line
-                if dividend_b and counter == 6 :
-                    print(line)
-                    exempt_d['外国源泉徴収額']=line
-
-            # if date format shows up 
-            if re.match(delimiter_r2,line) != None and dividend_b:
-                #print(re.match(delimiter_r2,line).group())
-                counter=0
-                # 配当金等金額YENモードON
-                dividend_Yen_b=True
-                dividend_b=False
-            if dividend_Yen_b:
-                counter = counter + 1
-            if dividend_Yen_b and counter == 7 :
-                print(line)
-                exempt_d['配当金等金額YEN']=line.replace(',','')
-            if dividend_Yen_b and counter == 9 :
-                print(line)
-                exempt_d['外国源泉徴収額YEN']=line.replace(',','')
-                #結果の保存
-                exempts_l.append(exempt_d)
-                exempt_d={}
-print(exempts_l)
-
-# 合計値の確認
-配当金等金額_sum=Decimal(0.0)
-外国源泉徴収額_sum=Decimal(0.0)
-配当金等金額_yen_sum=Decimal(0.0)
-外国源泉徴収額_yen_sum=Decimal(0.0)
-
-for data in exempts_l:
-    配当金等金額_sum=配当金等金額_sum + Decimal(data['配当金等金額'])
-    外国源泉徴収額_sum=外国源泉徴収額_sum + Decimal(data['外国源泉徴収額'])
-    配当金等金額_yen_sum=配当金等金額_yen_sum + Decimal(data['配当金等金額YEN'])
-    外国源泉徴収額_yen_sum=外国源泉徴収額_yen_sum + Decimal(data['外国源泉徴収額YEN'])
-
-print("---------確定申告に記載する値-------------")
-print("配当金等金額->" + str(配当金等金額_sum) + "$")
-print("外国源泉徴収額->" + str(外国源泉徴収額_sum) + "$")
-print("配当金等金額YEN->" + str(配当金等金額_yen_sum) + "円")
-print("外国源泉徴収額YEN->" + str(外国源泉徴収額_yen_sum) + "円")
+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

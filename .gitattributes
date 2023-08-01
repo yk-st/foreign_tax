@@ -1,0 +1,2 @@
+#pattern  filter=crypt diff=crypt merge=crypt
+pdf_data.py filter=crypt diff=crypt merge=crypt
